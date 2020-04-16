@@ -1,51 +1,45 @@
-import {createBoardTemplate} from "./components/board.js";
+const EVENT_COUNT = 3;
+
+import {createTripEventTemplate} from "./components/trip-event.js";
+import {createTripEventsListTemplate} from "./components/trip-events-list.js";
+import {createTripDayTemplate} from "./components/trip-day.js";
+import {createTripDaysListTemplate} from "./components/trip-days-list.js";
+import {createEventEditTemplate} from "./components/event-edit.js";
+import {createSortTemplate} from "./components/sort.js";
 import {createFilterTemplate} from "./components/filter.js";
-import {createLoadMoreButtonTemplate} from "./components/load-more-button.js";
-import {createTaskEditTemplate} from "./components/task-edit.js";
-import {createTaskTemplate} from "./components/task.js";
-import {createSiteMenuTemplate} from "./components/site-menu.js";
+import {createMenuControlTemplate} from "./components/menu-control.js";
+import {createRouteAndPriceInformationTemplate} from "./components/route-and-price-information.js";
 import {generateFilters} from "./mock/filter.js";
-import {generateTasks} from "./mock/task.js";
 
-const TASK_COUNT = 22;
-const SHOWING_TASKS_COUNT_ON_START = 8;
-const SHOWING_TASKS_COUNT_BY_BUTTON = 8;
 
-const render = (container, template, place) => {
+const render = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
 };
 
+const tripMainElement = document.querySelector(`.trip-main`);
+const tripControlElement = tripMainElement.querySelector(`.trip-main__trip-controls`);
+const tripEventsElement = document.querySelector(`.trip-events`);
+
+render(tripMainElement, createRouteAndPriceInformationTemplate(), `afterbegin`);
+render(tripControlElement, createMenuControlTemplate());
+
 const filters = generateFilters();
-const tasks = generateTasks(TASK_COUNT);
+render(tripControlElement, createFilterTemplate(filters));
 
-const siteMainElement = document.querySelector(`.main`);
-const siteHeaderElement = siteMainElement.querySelector(`.main__control`);
+render(tripEventsElement, createSortTemplate());
+render(tripEventsElement, createEventEditTemplate());
+render(tripEventsElement, createTripDaysListTemplate());
 
-render(siteHeaderElement, createSiteMenuTemplate(), `beforeend`);
-render(siteMainElement, createFilterTemplate(filters), `beforeend`);
-render(siteMainElement, createBoardTemplate(), `beforeend`);
+const tripDaysListElement = document.querySelector(`.trip-days`);
 
-const taskListElement = siteMainElement.querySelector(`.board__tasks`);
-const boardElement = siteMainElement.querySelector(`.board`);
+render(tripDaysListElement, createTripDayTemplate());
 
-render(taskListElement, createTaskEditTemplate(tasks[0]), `beforeend`);
-let showingTasksCount = SHOWING_TASKS_COUNT_ON_START;
+const tripDaysItemElement = document.querySelector(`.trip-days__item`);
 
-tasks.slice(1, showingTasksCount)
-  .forEach((task) => render(taskListElement, createTaskTemplate(task), `beforeend`));
+render(tripDaysItemElement, createTripEventsListTemplate());
 
-render(boardElement, createLoadMoreButtonTemplate(), `beforeend`);
+const tripEventListElement = document.querySelector(`.trip-events__list`);
 
-const loadMoreButton = boardElement.querySelector(`.load-more`);
-
-loadMoreButton.addEventListener(`click`, () => {
-  const prevTasksCount = showingTasksCount;
-  showingTasksCount = showingTasksCount + SHOWING_TASKS_COUNT_BY_BUTTON;
-
-  tasks.slice(prevTasksCount, showingTasksCount)
-    .forEach((task) => render(taskListElement, createTaskTemplate(task), `beforeend`));
-
-  if (showingTasksCount >= tasks.length) {
-    loadMoreButton.remove();
-  }
-});
+for (let i = 0; i < EVENT_COUNT; i++) {
+  render(tripEventListElement, createTripEventTemplate());
+}
